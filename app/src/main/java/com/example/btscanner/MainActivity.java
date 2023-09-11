@@ -33,8 +33,15 @@ import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Random;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.FirebaseApp;
 
 /*
     App Overview:
@@ -161,14 +168,14 @@ public class MainActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, new IntentFilter("com.example.btscanner.NEW_MESSAGE"));
 
         // Add event to scan button click
-        Button scanButton = findViewById(R.id.scanButton);
-        //scanButton.setOnClickListener(view -> startDiscovery());
+        Button firebaseButton = findViewById(R.id.scanButton);
+        firebaseButton.setOnClickListener(ButtonClickListener);
         // Check if the device is running Android Go
         boolean isAndroidGo = isAndroidGoDevice();
         if (isAndroidGo) {
-            scanButton.setText("Android GO.");
+            firebaseButton.setText("Android GO.");
         } else {
-            scanButton.setText("Android.");
+            firebaseButton.setText("Android.");
         }
 
         // Add click event handler to the device list
@@ -203,8 +210,36 @@ public class MainActivity extends AppCompatActivity {
             wakeLock.acquire();
         }
 
+        // Initialize Firebase
+        FirebaseApp.initializeApp(this);
 
     }
+
+    // Create a new randomized entry in the 'orders' reference in the realtime database
+    // the foreground service running in the background on this and other devices will detect it
+    // and show the value in a toast or push notification
+    private View.OnClickListener ButtonClickListener = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View view) {
+
+            Random random = new Random();
+
+            // Initialize Firebase
+            FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+            DatabaseReference databaseReference = firebaseDatabase.getReference("orders");
+
+            String randomField1 = String.valueOf(random.nextInt(100));
+
+            // Create a Map to represent your data
+            Map<String, Object> data = new HashMap<>();
+            data.put("field1", randomField1);
+
+            // Push the data to the database reference
+            databaseReference.push().setValue(data);
+        }
+    };
+
     @SuppressLint("MissingPermission")
     private void sendBTMessage(AdapterView<?> adapterView, View view, int i, long l) {
 

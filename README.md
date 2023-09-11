@@ -1,6 +1,8 @@
 # watchtester
 Testing App for Smartwatch candidates
 
+Version 0.02
+
 # App Overview:
 The purpose of this app is to test the resilience of background services in receiving web push notifications, bluetooth socket connections,
 REST and websockets or running any background code.
@@ -20,14 +22,22 @@ It is very aggressive in turning off background push notifications and services 
 * Allows you to tap on any device on the list, then attempts to send that devices a 'hello' ping over bluetooth
 * Goes to the background when you press back instead of exiting
 * Shows a toast when a 'hello ping' is send and the app main activity is open or a push notification if the app is in the background
+* Tapping on the bottom 'Android' bottom will write new entry in the firebase realtime database in the 'orders' reference, 
+      this will be detected by a firebase childAdded event listener in the foreground service running in the background,
+      and a toast or push notification will show the newly added firebase object on this app and any other device with the app installed on
 
 # Conclusion & Finding:
+What worked:
 Setting up a foreground service successfully continues working on android GO devices and it can receive bluetooth connection requests
 and run other code in the background like interacting with online servers (and databases).
 This was done and achieved though on a java native android app.
+Firebase real time event listeners running in the foreground service successfully continue to receive online updates after doze mode on Android Go
+What didn't:
+Normal web notifications from OneSignal and Firebase still wont be received when device is in doze mode on Android go, even if they were
+started from the foreground service.
 
 # Next Steps:
-* Test REST and websocket/firebase online interactions from within the foreground service
+* Test more scenarios to receive online updates from within the foreground service
 
 # Potential Use Cases:
 Since the foreground services keep running on Android Go, you can monitor online API endpoints to listen to events over websockets to see when new 'event' has happened
@@ -78,5 +88,6 @@ Finally, while sending BT pings now works to 'sleeping' devices running foregrou
 * Always check Logcat in android studio for error messages
 
 PS:
+* Place your correct android app firebase google-services.json file in the /app folder (make sure realtime database is enabled)
 * Remember to fill in your own OneSignal App ID.
 * You have to pair the Bluetooth devices you want to test inter Bluetooth communication with

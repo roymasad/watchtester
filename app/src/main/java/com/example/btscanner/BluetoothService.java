@@ -23,14 +23,24 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.onesignal.Continue;
 import com.onesignal.OneSignal;
 import com.onesignal.debug.LogLevel;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.FirebaseApp;
 
 public class BluetoothService extends Service {
 
@@ -82,6 +92,57 @@ public class BluetoothService extends Service {
 
         // OneSignal Initialization
         OneSignal.initWithContext(this, ONESIGNAL_APP_ID);
+
+        // Initialize Firebase
+        FirebaseApp.initializeApp(this);
+
+        // Initialize Firebase
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference databaseReference = firebaseDatabase.getReference("orders");
+
+        // listen to event changes in the service for the 'orders' reference in the firebase realtime database
+        ChildEventListener ordersListener = new ChildEventListener() {
+
+            private boolean firstLoad = true; // skip first load existing data
+
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+
+                if (firstLoad) {
+
+                    firstLoad = false;
+                    return;
+                }
+
+                String field1 = (String) dataSnapshot.child("field1").getValue();
+
+                Log.d("BT_SC", "field1: " + field1);
+
+                showMessage("Firebase new: " + field1);
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Handle errors
+            }
+        };
+
+        // Add the ChildEventListener to the "orders" reference, load only last entry (skip existing data)
+        databaseReference.limitToLast(1).addChildEventListener(ordersListener);
+
 
     }
 
