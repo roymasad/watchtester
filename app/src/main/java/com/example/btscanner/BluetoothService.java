@@ -63,7 +63,7 @@ public class BluetoothService extends Service {
     private WakeLock wakeLock;
 
     // TODO put your own OneSignal App ID here
-    private static final String ONESIGNAL_APP_ID = "493f81e0-3600-4e04-b57a-33a0a73d913d";
+    private static final String ONESIGNAL_APP_ID = "";
 
     @SuppressLint("InvalidWakeLockTag")
     @Override
