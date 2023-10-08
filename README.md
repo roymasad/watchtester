@@ -1,5 +1,5 @@
 # watchtester
-Testing App for Smartwatch candidates
+Testing Background App Notifications for Android Go Smartwatch 
 
 Version 0.02
 
